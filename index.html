@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Push-Pop Stack Animation</title>
+  <title>Factorial Calculation</title>
   <style>
     /* CSS styles for the stack container */
     .stack-container {
@@ -77,51 +77,123 @@
 </head>
 
 <body>
+  <h2 style="position: absolute; bottom: 0; left: 15%; margin-bottom: 2%;">Function Call Stack</h2>
 
-  <div class="stack-container" id="stack">
-    <!-- Stack items will be added and removed here -->
+  <div style="display: flex; align-items: center;">
+    <div class="stack-container" id="stack">
+      <!-- Stack items will be added and removed here -->
+    </div>
+    <div style="height: fit-content;" class="stack-control">
+      <button class="push-btn" onclick="nextStep()">Next</button>
+    </div>
+    <div class="stack-container" id="stack2">
+      <h2 style="position: absolute; bottom: 0; margin-bottom: 2%;">Return Value Stack</h2>
+    </div>
   </div>
-  <div class="stack-control">
-    <button class="push-btn" onclick="pushItem()">Call</button>
-    <button class="pop-btn" onclick="reseti()">Reset index</button>
-    <button class="pop-btn" onclick="popItem()">Return</button>
-  </div>
+
+
   <script>
-    // Function to push an item onto the stack
-    let i = 0;
+    // Function to push a function call onto the stack
+    let callStack = [];
+    const num = 5;
 
-    function pushItem() {
-      const stack = document.getElementById('stack');
+    function pushFunctionCall(functionName, stackname) {
+      const stack = document.getElementById(stackname);
+      console.log(stackname);
+      callStack.push(functionName);
+
       const newItem = document.createElement('div');
       newItem.classList.add('stack-item');
-      newItem.textContent = `${i}`;
-      i++;
+      newItem.textContent = functionName;
       stack.insertBefore(newItem, stack.firstChild);
+
       // Trigger animation
       setTimeout(() => {
         newItem.style.animation = 'pushAnimation 0.1s ease-in-out';
       }, 10);
+
       // Remove animation class after the animation completes
       newItem.addEventListener('animationend', () => {
         newItem.style.animation = '';
       });
     }
 
-    function reseti() {
-      i = 0;
-    }
-    // Function to pop the top item from the stack
-    function popItem() {
+    // Function to pop the top function call from the stack
+    function popFunctionCall() {
       const stack = document.getElementById('stack');
-      const items = stack.getElementsByClassName('stack-item');
-      i--;
-      if (items.length > 0) {
-        const poppedItem = items[0];
-        poppedItem.style.transform = 'translateY(-100%)';
-        setTimeout(() => {
-          poppedItem.remove();
-        }, 200);
+      if (callStack.length > 0) {
+        callStack.pop();
+
+        const items = stack.getElementsByClassName('stack-item');
+        if (items.length > 0) {
+          const poppedItem = items[0];
+          poppedItem.style.transform = 'translateY(-100%)';
+          setTimeout(() => {
+            poppedItem.remove();
+          }, 200);
+        }
       }
+    }
+
+    // Recursive function to calculate factorial
+    function calculateFactorial(n) {
+      if (n === 0 || n === 1) {
+        pushFunctionCall(`fact(${n}) = 1`, "stack");
+      } else {
+        pushFunctionCall(`fact(${n}) = ${n} * fact(${n - 1})`, "stack");
+      }
+    }
+
+    currentStep = 0;
+
+
+    // Function to progress to the next step
+    flag = 0;
+    facto = 1
+    function nextStep() {
+      if (flag === 1) {
+        popFunctionCall();
+        facto = facto * popstep;
+        console.log(facto);
+        pushFunctionCall(facto + " is returned", "stack2");
+        popstep++;
+        if (popstep !== num + 1) {
+          popFunctionCall();
+        }
+        else {
+          document.querySelector('.push-btn').style.display = "none";
+
+        }
+
+
+      }
+      if (currentStep === 0) {
+        resetStack();
+        calculateFactorial(num);
+      } else if (currentStep >= 1 && currentStep < num) {
+        calculateFactorial(num - currentStep);
+      } else if (currentStep === num && callStack.length > 0) {
+        flag = 1;
+        popstep = 1;
+        console.log(popstep++)
+        popFunctionCall();
+        pushFunctionCall(1 + " is returned", "stack2");
+        if (callStack.length === 0) {
+          // Reset the current step when all elements are popped
+          currentStep = 0;
+        }
+      }
+      currentStep++;
+    }
+
+
+
+    // Function to reset the stack
+    function resetStack() {
+      callStack = [];
+      const stack = document.getElementById('stack');
+      stack.innerHTML = '';
+      currentStep = 0;
     }
   </script>
 </body>
